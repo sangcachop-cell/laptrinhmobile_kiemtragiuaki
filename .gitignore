@@ -2,10 +2,13 @@
 # 1. Flutter & Dart
 # ========================================================
 .dart_tool/
+**/.dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
+**/.pub-cache/
 .pub/
+**/.pub/
 /build/
 **/build/
 **/doc/api/
@@ -85,7 +88,6 @@ docs/
 BaoCao-*.docx
 *.docx
 *.pdf
-frontend/
 TOEIC/
 generated_exams/
 
