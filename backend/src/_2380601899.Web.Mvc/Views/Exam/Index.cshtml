@@ -1,0 +1,160 @@
+@model List<_2380601899.Application.Services.ExamSummaryDto>
+@{
+    ViewData["Title"] = "Quản lý Đề thi";
+    var validationErrors = ViewBag.ValidationErrors as List<string>;
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-collection-play me-2 text-primary"></i>Danh sách Đề thi TOEIC Reading</h2>
+        <p class="text-muted mb-0">Quản trị viên / Giảng viên có thể tải lên file Word (.docx), xem trước, chỉnh sửa và xuất bản đề thi cho ứng dụng Flutter.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <button class="btn btn-primary btn-lg shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#uploadBox">
+            <i class="bi bi-cloud-arrow-up-fill me-2"></i>Tải lên Đề thi mới (.docx)
+        </button>
+    </div>
+</div>
+
+<!-- Khối Upload file Word (Collapse) -->
+<div class="collapse @(validationErrors != null && validationErrors.Any() ? "show" : "") mb-4" id="uploadBox">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="card-title mb-0 fw-semibold"><i class="bi bi-file-earmark-word me-2"></i>Upload File Đề thi Word chuẩn định dạng</h5>
+        </div>
+        <div class="card-body p-4">
+            @if (validationErrors != null && validationErrors.Any())
+            {
+                <div class="alert alert-danger border-start border-4 border-danger shadow-sm mb-4">
+                    <h5 class="alert-heading fw-bold"><i class="bi bi-x-octagon-fill me-2"></i>LỖI XÁC THỰC CẤU TRÚC FILE WORD (Tệp: @ViewBag.FileName)</h5>
+                    <p class="mb-2">Hệ thống áp dụng cơ chế <strong>Toàn vẹn dữ liệu (All-or-Nothing Rollback)</strong>: Tuyệt đối không lưu bất kỳ câu hỏi nào vào CSDL khi còn lỗi định dạng.</p>
+                    <hr />
+                    <ul class="mb-0 ps-3">
+                        @foreach (var err in validationErrors)
+                        {
+                            <li class="py-1">@err</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form asp-controller="Exam" asp-action="Upload" method="post" enctype="multipart/form-data">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-8">
+                        <label for="docxFile" class="form-label fw-bold">Chọn tệp tin Word (.docx):</label>
+                        <input type="file" class="form-control form-control-lg" id="docxFile" name="docxFile" accept=".docx" required />
+                        <div class="form-text mt-2 text-muted">
+                            <i class="bi bi-info-circle me-1"></i>Hỗ trợ đầy đủ bộ thẻ: <code>[EXAM_TITLE]</code>, <code>[PART: 5|6|7]</code>, <code>[PASSAGE_START]...[PASSAGE_END]</code>, <code>[Q: ...]</code>, <code>[A]</code>, <code>[B]</code>, <code>[C]</code>, <code>[D]</code>, <code>[ANS: ...]</code>, <code>[HINT: ...]</code>, <code>[Q_END]</code>.
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-md-4">
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">
+                            <i class="bi bi-check2-circle me-2"></i>Xác thực & Lưu vào CSDL
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Danh sách Đề thi -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-secondary text-uppercase small">
+                    <tr>
+                        <th class="ps-4">Tên đề thi</th>
+                        <th class="text-center">Thời gian</th>
+                        <th class="text-center">Số câu hỏi</th>
+                        <th class="text-center">Lượt thi</th>
+                        <th class="text-center">Điểm TB</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-folder-x display-4 d-block mb-3 text-secondary"></i>
+                                Chưa có đề thi nào trong cơ sở dữ liệu. Vui lòng bấm <strong>Tải lên Đề thi mới</strong> ở trên!
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var exam in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark fs-6">@exam.Title</div>
+                                    <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>Tạo lúc: @exam.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-3 py-2">
+                                        <i class="bi bi-clock me-1 text-primary"></i>@exam.DurationMinutes phút
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-3 py-2">
+                                        <i class="bi bi-list-ol me-1 text-success"></i>@exam.TotalQuestions câu
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold text-primary fs-6">@exam.AttemptCount</span>
+                                </td>
+                                <td class="text-center">
+                                    @(exam.AverageScore.HasValue ? exam.AverageScore.Value.ToString("0.00") : "Chưa có")
+                                </td>
+                                <td class="text-center">
+                                    @if (exam.IsPublished)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-semibold">
+                                            <i class="bi bi-check-circle me-1"></i>Đã xuất bản (Live)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 fw-semibold">
+                                            <i class="bi bi-pencil-square me-1"></i>Bản nháp (Draft)
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group shadow-sm">
+                                        <!-- Xem trước & Sửa -->
+                                        <a asp-action="Preview" asp-route-id="@exam.Id" class="btn btn-sm btn-outline-primary" title="Xem trước và Chỉnh sửa">
+                                            <i class="bi bi-eye-fill me-1"></i>Xem trước
+                                        </a>
+
+                                        <!-- Thống kê & Top 10 câu sai -->
+                                        <a asp-action="Analytics" asp-route-id="@exam.Id" class="btn btn-sm btn-outline-info" title="Xem Thống kê & Top câu hỏi sai">
+                                            <i class="bi bi-bar-chart-line-fill me-1"></i>Thống kê
+                                        </a>
+
+                                        <!-- Bật/tắt Xuất bản -->
+                                        <form asp-action="TogglePublish" asp-route-id="@exam.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm @(exam.IsPublished ? "btn-outline-warning" : "btn-outline-success")" title="@(exam.IsPublished ? "Hủy xuất bản" : "Xuất bản đề thi")">
+                                                <i class="bi @(exam.IsPublished ? "bi-eye-slash-fill" : "bi-upload") me-1"></i>@(exam.IsPublished ? "Gỡ" : "Xuất bản")
+                                            </button>
+                                        </form>
+
+                                        <!-- Xóa -->
+                                        <form asp-action="Delete" asp-route-id="@exam.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đề thi này không? Mọi dữ liệu câu hỏi và lượt làm bài liên quan sẽ bị xóa vĩnh viễn.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa đề thi">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

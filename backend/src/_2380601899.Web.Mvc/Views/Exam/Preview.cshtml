@@ -1,0 +1,211 @@
+@model _2380601899.Core.Entities.Exam
+@{
+    ViewData["Title"] = $"Xem trước: {Model.Title}";
+    var p5Questions = Model.Questions.Where(q => q.PartNumber == 5).OrderBy(q => q.QuestionNumber).ToList();
+    var p6Passages = Model.Passages.Where(p => p.PartNumber == 6).OrderBy(p => p.OrderIndex).ToList();
+    var p7Passages = Model.Passages.Where(p => p.PartNumber == 7).OrderBy(p => p.OrderIndex).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="bi bi-file-earmark-text text-primary me-2"></i>@Model.Title
+        </h2>
+        <div class="text-muted">
+            <span class="me-3"><i class="bi bi-clock me-1 text-primary"></i>@Model.DurationMinutes phút</span>
+            <span class="me-3"><i class="bi bi-check2-all me-1 text-success"></i>@Model.TotalQuestions câu hỏi</span>
+            <span>
+                Trạng thái: 
+                @if (Model.IsPublished)
+                {
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Đã xuất bản (Live)</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary"><i class="bi bi-pencil-square me-1"></i>Bản nháp (Draft)</span>
+                }
+            </span>
+        </div>
+    </div>
+    <div class="text-end">
+        <form asp-action="TogglePublish" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-lg @(Model.IsPublished ? "btn-warning" : "btn-success") shadow-sm">
+                <i class="bi @(Model.IsPublished ? "bi-eye-slash-fill" : "bi-upload") me-2"></i>@(Model.IsPublished ? "Gỡ xuất bản" : "Xuất bản đề thi")
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Tabs for Parts -->
+<ul class="nav nav-pills nav-fill mb-4 bg-white p-2 rounded shadow-sm" id="partTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold py-3" id="part5-tab" data-bs-toggle="tab" data-bs-target="#part5-content" type="button" role="tab">
+            <i class="bi bi-1-circle me-2"></i>PART 5: Câu hỏi đơn (@p5Questions.Count câu)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold py-3" id="part6-tab" data-bs-toggle="tab" data-bs-target="#part6-content" type="button" role="tab">
+            <i class="bi bi-2-circle me-2"></i>PART 6: Đoạn văn điền khuyết (@p6Passages.Count đoạn văn)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold py-3" id="part7-tab" data-bs-toggle="tab" data-bs-target="#part7-content" type="button" role="tab">
+            <i class="bi bi-3-circle me-2"></i>PART 7: Đọc hiểu văn bản (@p7Passages.Count đoạn văn)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="partTabsContent">
+    <!-- PART 5 -->
+    <div class="tab-pane fade show active" id="part5-content" role="tabpanel">
+        <div class="row g-3">
+            @foreach (var q in p5Questions)
+            {
+                <div class="col-12">
+                    @await Html.PartialAsync("_QuestionCard", q)
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- PART 6 -->
+    <div class="tab-pane fade" id="part6-content" role="tabpanel">
+        @foreach (var passage in p6Passages)
+        {
+            var qInPassage = Model.Questions.Where(q => q.PassageId == passage.Id).OrderBy(q => q.QuestionNumber).ToList();
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-file-text me-2"></i>Đoạn văn số @passage.OrderIndex (Câu @qInPassage.FirstOrDefault()?.QuestionNumber - @qInPassage.LastOrDefault()?.QuestionNumber)</span>
+                </div>
+                <div class="card-body p-4 bg-white border-bottom">
+                    <div class="p-3 bg-light rounded border font-monospace lh-lg">
+                        @Html.Raw(passage.ContentHtml)
+                    </div>
+                </div>
+                <div class="card-body p-4 bg-light">
+                    <div class="row g-3">
+                        @foreach (var q in qInPassage)
+                        {
+                            <div class="col-md-6">
+                                @await Html.PartialAsync("_QuestionCard", q)
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- PART 7 -->
+    <div class="tab-pane fade" id="part7-content" role="tabpanel">
+        @foreach (var passage in p7Passages)
+        {
+            var qInPassage = Model.Questions.Where(q => q.PassageId == passage.Id).OrderBy(q => q.QuestionNumber).ToList();
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-file-earmark-richtext me-2"></i>Bài đọc số @passage.OrderIndex (Câu @qInPassage.FirstOrDefault()?.QuestionNumber - @qInPassage.LastOrDefault()?.QuestionNumber)</span>
+                </div>
+                <div class="card-body p-4 bg-white border-bottom">
+                    <div class="p-3 bg-light rounded border lh-lg">
+                        @Html.Raw(passage.ContentHtml)
+                    </div>
+                </div>
+                <div class="card-body p-4 bg-light">
+                    <div class="row g-3">
+                        @foreach (var q in qInPassage)
+                        {
+                            <div class="col-12">
+                                @await Html.PartialAsync("_QuestionCard", q)
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Sửa Câu Hỏi -->
+<div class="modal fade" id="editQuestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form asp-action="UpdateQuestion" method="post">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="editModalTitle">Chỉnh sửa câu hỏi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editQuestionId" name="questionId" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nội dung câu hỏi:</label>
+                        <textarea class="form-control" id="editQuestionText" name="questionText" rows="3" required></textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Phương án (A):</label>
+                            <input type="text" class="form-control" id="editOptA" name="optA" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Phương án (B):</label>
+                            <input type="text" class="form-control" id="editOptB" name="optB" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Phương án (C):</label>
+                            <input type="text" class="form-control" id="editOptC" name="optC" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Phương án (D):</label>
+                            <input type="text" class="form-control" id="editOptD" name="optD" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-success">Đáp án đúng:</label>
+                            <select class="form-select" id="editCorrectLabel" name="correctLabel" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold text-info">Gợi ý / Lời giải (Hint):</label>
+                            <input type="text" class="form-control" id="editHint" name="hint" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success fw-bold">
+                        <i class="bi bi-save me-1"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditModal(id, num, text, optA, optB, optC, optD, correctLabel, hint) {
+            document.getElementById('editQuestionId').value = id;
+            document.getElementById('editModalTitle').innerText = 'Chỉnh sửa câu hỏi #' + num;
+            document.getElementById('editQuestionText').value = text;
+            document.getElementById('editOptA').value = optA;
+            document.getElementById('editOptB').value = optB;
+            document.getElementById('editOptC').value = optC;
+            document.getElementById('editOptD').value = optD;
+            document.getElementById('editCorrectLabel').value = correctLabel;
+            document.getElementById('editHint').value = hint || '';
+
+            var modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
+            modal.show();
+        }
+    </script>
+}

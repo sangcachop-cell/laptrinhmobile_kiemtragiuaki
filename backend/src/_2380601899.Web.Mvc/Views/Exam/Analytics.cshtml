@@ -1,0 +1,120 @@
+@model _2380601899.Application.Services.ExamAnalyticsDto
+@{
+    ViewData["Title"] = $"Thống kê đề thi: {Model.Title}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="bi bi-bar-chart-fill text-info me-2"></i>Thống kê & Phân tích Đề thi
+        </h2>
+        <div class="text-muted fs-6">@Model.Title</div>
+    </div>
+</div>
+
+<!-- 3 Thẻ chỉ số tổng quan -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-primary text-white h-100">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-people-fill display-5 opacity-75 mb-2 d-block"></i>
+                <div class="display-5 fw-bold mb-1">@Model.TotalAttempts</div>
+                <div class="text-uppercase small fw-semibold text-white-50">Tổng lượt làm bài</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-success text-white h-100">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-award-fill display-5 opacity-75 mb-2 d-block"></i>
+                <div class="display-5 fw-bold mb-1">@Model.AverageScore.ToString("0.00") / 10</div>
+                <div class="text-uppercase small fw-semibold text-white-50">Điểm trung bình</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-info text-white h-100">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-check-circle-fill display-5 opacity-75 mb-2 d-block"></i>
+                <div class="display-5 fw-bold mb-1">@Model.AverageCorrectCount.ToString("0.0")</div>
+                <div class="text-uppercase small fw-semibold text-white-50">Số câu đúng trung bình</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Top 10 câu hỏi làm sai nhiều nhất -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title fw-bold text-danger mb-0">
+            <i class="bi bi-exclamation-diamond-fill me-2"></i>Top 10 Câu hỏi nhiều thí sinh làm sai nhất
+        </h5>
+        <span class="badge bg-danger-subtle text-danger px-3 py-2 fw-semibold">Truy vấn từ AttemptAnswers</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-secondary text-uppercase small">
+                    <tr>
+                        <th class="text-center" style="width: 80px;">Xếp hạng</th>
+                        <th style="width: 120px;">Câu hỏi</th>
+                        <th>Nội dung câu hỏi & Gợi ý</th>
+                        <th class="text-center" style="width: 140px;">Số lượt sai</th>
+                        <th style="width: 200px;">Tỉ lệ sai</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Top10MissedQuestions == null || !Model.Top10MissedQuestions.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-emoji-smile display-4 d-block mb-3 text-success"></i>
+                                Chưa có câu hỏi nào bị làm sai trong các lượt làm bài của đề thi này!
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        int rank = 1;
+                        foreach (var item in Model.Top10MissedQuestions)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <span class="badge rounded-circle @(rank <= 3 ? "bg-danger" : "bg-secondary") p-2 fs-6">
+                                        #@rank
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold fs-6">Câu @item.QuestionNumber</div>
+                                    <span class="badge bg-light text-dark border">Part @item.PartNumber</span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark mb-1">@item.QuestionText</div>
+                                    @if (!string.IsNullOrEmpty(item.Hint))
+                                    {
+                                        <div class="small text-muted"><i class="bi bi-lightbulb text-warning me-1"></i><strong>Giải thích:</strong> @item.Hint</div>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger px-3 py-2 fs-6 fw-bold">@item.WrongCount lượt</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: @item.WrongPercentage%"></div>
+                                        </div>
+                                        <span class="small fw-bold text-danger">@item.WrongPercentage%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            rank++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

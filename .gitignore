@@ -1,0 +1,91 @@
+# ========================================================
+# 1. Flutter & Dart
+# ========================================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+**/build/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+/coverage/
+.widget_preview/
+
+# Flutter Symbols & Maps
+app.*.symbols
+app.*.map.json
+
+# Android Studio / Gradle artifacts
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+.gradle/
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+
+# ========================================================
+# 2. .NET / C# / Visual Studio (Backend)
+# ========================================================
+**/bin/
+**/obj/
+[Bb]in/
+[Oo]bj/
+.vs/
+**/[Dd]ebug/
+**/[Rr]elease/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+_ReSharper*/
+
+# ========================================================
+# 3. IDEs & Editors
+# ========================================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.history/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ========================================================
+# 4. OS & System Junk
+# ========================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+__MACOSX/
+*.swp
+*.bak
+*.tmp
+
+# ========================================================
+# 5. Python & Temporary Scratch Files
+# ========================================================
+__pycache__/
+*.pyc
+*.pyo
+scratch_*.txt
+*.log
+
+# ========================================================
+# 6. Excluded by User Request
+# ========================================================
+sample_exams/
+docs/
+BaoCao-*.docx
+*.docx
+*.pdf
+frontend/
+TOEIC/
+generated_exams/
+

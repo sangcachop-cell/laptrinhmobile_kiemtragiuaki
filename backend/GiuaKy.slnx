@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GiuaKy.Application/GiuaKy.Application.csproj" />
+    <Project Path="src/GiuaKy.Core/GiuaKy.Core.csproj" />
+    <Project Path="src/GiuaKy.EntityFrameworkCore/GiuaKy.EntityFrameworkCore.csproj" />
+    <Project Path="src/GiuaKy.Web.Mvc/GiuaKy.Web.Mvc.csproj" />
+  </Folder>
+</Solution>

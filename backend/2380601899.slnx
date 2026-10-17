@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/_2380601899.Application/_2380601899.Application.csproj" />
+    <Project Path="src/_2380601899.Core/_2380601899.Core.csproj" />
+    <Project Path="src/_2380601899.EntityFrameworkCore/_2380601899.EntityFrameworkCore.csproj" />
+    <Project Path="src/_2380601899.Web.Mvc/_2380601899.Web.Mvc.csproj" />
+  </Folder>
+</Solution>
